@@ -1,6 +1,6 @@
 # UNet
 
-[UNet](https://arxiv.org/abs/1505.04597) implementation for Semantic Segmentation using PyTorch
+Modified [UNet](https://arxiv.org/abs/1505.04597) implementation for Semantic Segmentation using PyTorch
 
 #### Train
 * Run `python main.py` for training
