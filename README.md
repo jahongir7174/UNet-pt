@@ -15,7 +15,6 @@ Modified [UNet](https://arxiv.org/abs/1505.04597) implementation for Semantic Se
             ├── 2222_L.png
         ├── class_dict.csv
  
-#### Note 
-* default feature extractor is [EfficientNetV2-S](https://arxiv.org/pdf/2104.00298.pdf)
+#### Note
 * changing configuration of training, change parameters in `utils/config.py`
 * default loss function is `weighted cross entropy`
