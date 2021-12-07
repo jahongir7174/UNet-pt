@@ -34,10 +34,10 @@ class Conv(torch.nn.Module):
         super().__init__()
         self.conv = torch.nn.Conv2d(in_ch, out_ch, k, s, k // 2, groups=g, bias=False)
         self.norm = torch.nn.BatchNorm2d(out_ch)
-        self.silu = torch.nn.SiLU(inplace=True)
+        self.relu = torch.nn.SiLU(inplace=True)
 
     def forward(self, x):
-        return self.silu(self.norm(self.conv(x)))
+        return self.relu(self.norm(self.conv(x)))
 
 
 class SE(torch.nn.Module):
