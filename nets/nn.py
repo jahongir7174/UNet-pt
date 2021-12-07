@@ -124,29 +124,28 @@ class ASPPModule(torch.nn.Module):
 class UNet(torch.nn.Module):
     def __init__(self, num_class):
         super().__init__()
-        num_dep = [4, 12]
         filters = [3, 64, 128, 256, 512, 1024]
         self.b0 = Conv(filters[0], filters[1], 3, 1)
         self.b1 = Conv(filters[1], filters[2], 3, 2)
-        self.b2 = CSP(filters[2], filters[2], num_dep[0])
+        self.b2 = CSP(filters[2], filters[2], 2)
         self.b3 = Conv(filters[2], filters[3], 3, 2)
-        self.b4 = CSP(filters[3], filters[3], num_dep[1])
+        self.b4 = CSP(filters[3], filters[3], 4)
         self.b5 = Conv(filters[3], filters[4], 3, 2)
-        self.b6 = CSP(filters[4], filters[4], num_dep[1])
+        self.b6 = CSP(filters[4], filters[4], 6)
         self.b7 = Conv(filters[4], filters[5], 3, 2)
-        self.b8 = CSP(filters[5], filters[5], num_dep[0], False)
+        self.b8 = CSP(filters[5], filters[5], 8)
         self.b9 = ASPPModule(filters[5], filters[5])
 
         self.up = torch.nn.Upsample(None, 2)
 
-        self.h0 = Conv(filters[5], filters[4], 3, 1)
-        self.h1 = CSP(filters[5], filters[4], num_dep[0], False)
-        self.h2 = Conv(filters[4], filters[3], 3, 1)
-        self.h3 = CSP(filters[4], filters[3], num_dep[0], False)
-        self.h4 = Conv(filters[3], filters[2], 3, 1)
-        self.h5 = CSP(filters[3], filters[2], num_dep[0], False)
-        self.h6 = Conv(filters[2], filters[1], 3, 1)
-        self.h7 = CSP(filters[2], filters[1], num_dep[0], False)
+        self.h0 = Conv(filters[5], filters[4], 1, 1)
+        self.h1 = CSP(filters[4], filters[4], 3, False)
+        self.h2 = Conv(filters[3], filters[3], 1, 1)
+        self.h3 = CSP(filters[3], filters[3], 3, False)
+        self.h4 = Conv(filters[3], filters[2], 1, 1)
+        self.h5 = CSP(filters[2], filters[2], 3, False)
+        self.h6 = Conv(filters[2], filters[1], 1, 1)
+        self.h7 = CSP(filters[1], filters[1], 3, False)
         self.h8 = torch.nn.Sequential(Conv(filters[1], filters[1], 3),
                                       torch.nn.Conv2d(filters[1], num_class, 1))
         initialize_weights(self)
@@ -167,16 +166,16 @@ class UNet(torch.nn.Module):
         b9 = self.b9(b8)
 
         h0 = self.h0(b9)
-        h1 = self.h1(torch.cat([self.up(h0), b6], 1))
+        h1 = self.h1(self.up(h0) + b6)
 
         h2 = self.h2(h1)
-        h3 = self.h3(torch.cat([self.up(h2), b4], 1))
+        h3 = self.h3(self.up(h2) + b4)
 
         h4 = self.h4(h3)
-        h5 = self.h5(torch.cat([self.up(h4), b2], 1))
+        h5 = self.h5(self.up(h4) + b2)
 
         h6 = self.h6(h5)
-        h7 = self.h7(torch.cat([self.up(h6), b0], 1))
+        h7 = self.h7(self.up(h6) + b0)
 
         return self.h8(h7)
 
